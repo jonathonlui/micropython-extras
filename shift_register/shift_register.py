@@ -1,12 +1,6 @@
 from machine import Pin
 from micropython import const
 
-MSB_FIRST = const(0)
-LSB_FIRST = const(1)
-
-# TODO: Support other lengths
-SHIFT_REGISTER_LENGTH = const(8)
-
 
 class ShiftRegisterSIPO:
     """Shift Register class for serial-in, parallel-out shift registers
@@ -15,9 +9,15 @@ class ShiftRegisterSIPO:
     Does not control output-enable (OE), master-reclear (MR) pins.
     """
 
+    MSB_FIRST = const(0)
+    LSB_FIRST = const(1)
+
+    # TODO: Support other lengths
+    SHIFT_REGISTER_LENGTH = const(8)
+
     def __init__(self, data_pin_id, clock_pin_id, latch_pin_id,
                  initial_pin_values=0x00, bit_order=MSB_FIRST):
-        if bit_order != MSB_FIRST:
+        if bit_order != ShiftRegisterSIPO.MSB_FIRST:
             raise NotImplementedError('Only supports bit_order=MSB_FIRST')
         self._data_pin = Pin(data_pin_id, Pin.OUT, value=0)
         self._clock_pin = Pin(clock_pin_id, Pin.OUT, value=0)
@@ -38,11 +38,11 @@ class ShiftRegisterSIPO:
         return self._pin_values
 
     def __len__(self):
-        return SHIFT_REGISTER_LENGTH
+        return ShiftRegisterSIPO.SHIFT_REGISTER_LENGTH
 
     def shift_out(self, data):
         self._pin_values = data
-        for i in range(SHIFT_REGISTER_LENGTH - 1, -1, -1):
+        for i in range(ShiftRegisterSIPO.SHIFT_REGISTER_LENGTH - 1, -1, -1):
             self._data_pin.value(self[i])
             self._clock_pin.on()
             self._clock_pin.off()

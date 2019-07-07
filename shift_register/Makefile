@@ -2,8 +2,8 @@ LIB_PATH=$(shell micropython -c 'import sys;print(sys.path[1])')
 
 .PHONY: install
 install:
-	cp -av shift_register.py shift_register_output_pins.py shift_register_as_gpio.py \
-		$(LIB_PATH)
+	mkdir -p "$(LIB_PATH)/shift_register"
+	cp -av __init__.py shift_register*.py "$(LIB_PATH)/shift_register"
 
 .PHONY: test
 test:
