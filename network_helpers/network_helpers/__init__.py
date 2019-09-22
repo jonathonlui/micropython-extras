@@ -26,16 +26,26 @@ class OpenWirelessNetworkConnectError(WirelessNetworkConnectError):
     pass
 
 
-def connect_to_ssid(wlan, ssid, password=''):
+def connect_to_ssid(ssid, password='', wlan=None):
     """
     Connect specified wirless network with optional password.
 
     This funcition blocks until successfully connecting to an open network
     or until it unable to find or connect to any open network.
 
+    Args:
+        ssid (str):
+        password (str):
+        wlan (network.WLAN): WLAN object to use to scan and connect. If not
+            provided, will instantiate and use a new WLAN object.
+
     Raises:
         WirelessNetworkConnectError: If the connection fails.
     """
+    if not wlan:
+        wlan = network.WLAN(network.STA_IF)
+        wlan.active(True)
+
     wlan.connect(ssid, password)
     while 1:
         status = wlan.status()
@@ -90,7 +100,7 @@ def connect_to_open_wireless_network(wlan=None, force=False):
 
     for ap in aps:
         try:
-            connect_to_ssid(wlan, ssid=ap[NET_SCAN_SSID_IDX])
+            connect_to_ssid(ssid=ap[NET_SCAN_SSID_IDX], wlan=wlan)
         except WirelessNetworkConnectError:
             # Try next one
             continue
