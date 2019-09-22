@@ -1,8 +1,8 @@
 LIB_PATH=$(shell micropython -c 'import sys;print(sys.path[1])')
 
 .PHONY: install
-install: install-requirements
-	cp -av machine network $(LIB_PATH)
+install: # install-requirements
+	cp -av machine network ntptime $(LIB_PATH)
 
 .PHONY: install-requirements
 install-requirements:
