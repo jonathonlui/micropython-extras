@@ -38,16 +38,24 @@ class WLAN:
             cmd = 'networksetup -getairportpower %s' % self.interface
             return os.popen(cmd).read().endswith('On\n')
 
-    def connect(self, ssid, password):
+    def connect(self, ssid=None, password=None):
+        if not ssid:
+            return
         cmd = 'networksetup -setairportnetwork %s "%s" "%s"' % (
-            self.interface, ssid, password
+            self.interface, ssid, password or ''
         )
         out = os.popen(cmd).read().strip()
         if out:
             raise RuntimeError('Connection error')
 
     def disconnect(self):
-        raise NotImplementedError
+        if self.isconnected():
+            print('WLAN.disconnect() not implemented so this is a no-op')
+            # Requires root to disassociate
+            # cmd = '/System/Library/PrivateFrameworks/' \
+            #     'Apple80211.framework/Versions/' \
+            #     'Current/Resources/airport -z'
+            # os.popen(cmd)
 
     def scan(self):
         cmd = '/System/Library/PrivateFrameworks/' \
