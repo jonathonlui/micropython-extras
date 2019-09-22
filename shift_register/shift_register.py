@@ -37,6 +37,9 @@ class ShiftRegisterSIPO:
     def __int__(self):
         return self._pin_values
 
+    def __str__(self):
+        return '0b{:08b}'.format(self._pin_values)
+
     def __len__(self):
         return ShiftRegisterSIPO.SHIFT_REGISTER_LENGTH
 
