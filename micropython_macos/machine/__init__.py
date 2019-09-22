@@ -1,5 +1,10 @@
 import os
-from micropython import const
+import utime
+
+try:
+    from micropython import const
+except ImportError:
+    def const(x): return x
 
 IDLE = const(0)
 SLEEP = const(1)
@@ -10,6 +15,12 @@ HARD_RESET = const(1)
 WDT_RESET = const(2)
 DEEPSLEEP_RESET = const(3)
 SOFT_RESET = const(4)
+
+
+class ADC:
+    def read(self):
+        return 0
+        # raise NotImplementedError
 
 
 class Pin:
@@ -31,25 +42,23 @@ class Pin:
     IRQ_LOW_LEVEL = const(2)
     IRQ_HIGH_LEVEL = const(3)
 
-    def __init__(self, id, mode=-1, pull=-1, value=None, drive=None, alt=None,
-                 *args):
-        self.id = id
-        self.init(mode, pull, value, drive, alt, *args)
-        self._value = 0
-
-    def init(mode=-1, pull=-1, value=None, drive=None, alt=None, *args):
-        # raise NotImplementedError
-        pass
-
-    def value(self, value=None):
-        if value is not None:
-            return self._value
-        else:
-            raise NotImplementedError
-            self._value = 1 if value else 0
+    def __init__(self, pin_id, mode=-1, pull=-1, *,
+                 value=None, drive=None, alt=None):
+        self._pin_id = pin_id
+        self.init(mode, pull, value=value, drive=drive, alt=alt)
 
     def __call__(self, value=None):
         return self.value(value)
+
+    def init(self, mode=-1, pull=-1, *, value=None, drive=None, alt=None):
+        self.mode(mode)
+        self.pull(pull)
+        self.value(value or 0)
+
+    def value(self, value=None):
+        if value is None:
+            return self._value
+        self._value = 1 if value else 0
 
     def on(self):
         self.value(1)
@@ -58,7 +67,14 @@ class Pin:
         self.value(0)
 
     def mode(self, mode=None):
-        raise NotImplementedError
+        if mode is None:
+            return self._mode
+        self._mode = mode
+
+    def pull(self, pull):
+        if pull is None:
+            return self._pull
+        self._pull = pull
 
     def drive(self, drive=None):
         raise NotImplementedError
@@ -192,16 +208,19 @@ class RTC:
     ALARM0 = const(0)
 
     def __init__(self, id=0, *args):
-        self.init(*args)
+        pass
 
     def init(self, datetime):
-        self._datetime = datetime
+        raise NotImplementedError
 
     def deinit(self):
-        self.init(2015, 1, 1)
+        raise NotImplementedError
+
+    def datetime(self):
+        return self.now()
 
     def now(self):
-        raise NotImplementedError
+        return utime.localtime()
 
     def alarm(self, id, time, repeat=False, *args):
         raise NotImplementedError
@@ -245,7 +264,7 @@ def reset():
 
 
 def reset_cause():
-    raise NotImplementedError
+    return PWRON_RESET
 
 
 """
